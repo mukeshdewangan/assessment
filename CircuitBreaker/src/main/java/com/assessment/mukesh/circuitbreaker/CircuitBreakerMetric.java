@@ -1,12 +1,13 @@
 package com.assessment.mukesh.circuitbreaker;
 
 public class CircuitBreakerMetric {
-    private final String circuitBreakerType;
-    private final String state;
-    private final int totalFailureCount;
-    private final int failuresInTimeWindow;
-    private final long lastFailureTime;
-    private final long timeSinceLastFailureMs;
+    private String circuitBreakerType;
+    private String state;
+    private int totalFailureCount;
+    private int totalSuccessCount;
+    private int failuresInTimeWindow;
+    private long lastFailureTime;
+    private long timeSinceLastFailureMs;
 
     private CircuitBreakerMetric(Builder builder) {
         this.state = builder.state;
@@ -17,9 +18,16 @@ public class CircuitBreakerMetric {
         this.circuitBreakerType = builder.type;
     }
 
+    public CircuitBreakerMetric(){
+
+    }
     // Getters (optional if you want immutability)
     public String getState() {
         return state;
+    }
+
+    public void setCurrentState(State currentState) {
+        this.state = currentState.toString();
     }
 
     public int getTotalFailureCount() {
@@ -41,6 +49,15 @@ public class CircuitBreakerMetric {
     public String getCircuitBreakerType() {
         return circuitBreakerType;
     }
+
+    public synchronized void recordFailure() {
+        totalFailureCount++;
+    }
+
+    public synchronized void recordSuccess() {
+        totalSuccessCount++;
+    }
+
 
     // Builder class
     public static class Builder {

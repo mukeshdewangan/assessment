@@ -7,18 +7,21 @@ public class TimeBasedCircuitBreaker extends CircuitBreaker {
     private long timeWindow; // Time window in milliseconds
     private Queue<Long> failureTimestamps = new LinkedList<>();
 
+    private int maxCallsInHalfOpen = 2; // configurable if needed
+
     public TimeBasedCircuitBreaker(int failureThreshold, long timeWindow) {
         this.failureThreshold = failureThreshold;
         this.timeWindow = timeWindow;
+        this.metric = new CircuitBreakerMetric();
     }
 
-    @Override
-    public synchronized boolean allowRequest() {
-        if (state == State.OPEN) {
-            return false; // Block requests when OPEN
-        }
-        return true; // Allow requests when CLOSED or HALF_OPEN
-    }
+//    @Override
+//    public synchronized boolean allowRequest() {
+//        if (state == State.OPEN) {
+//            return false; // Block requests when OPEN
+//        }
+//        return true; // Allow requests when CLOSED or HALF_OPEN
+//    }
 
     @Override
     public synchronized void recordFailure() {
@@ -33,12 +36,17 @@ public class TimeBasedCircuitBreaker extends CircuitBreaker {
         if (failureTimestamps.size() >= failureThreshold) {
             changeState(State.OPEN);
         }
+        metric.recordFailure();
     }
 
     @Override
     public synchronized void recordSuccess() {
-        failureTimestamps.clear();
-        changeState(State.CLOSED);
+        if (state == State.HALF_OPEN) {
+            if (--maxCallsInHalfOpen <= 0) {
+                changeState(State.CLOSED);
+            }
+        }
+        metric.recordSuccess();
     }
 
     @Override

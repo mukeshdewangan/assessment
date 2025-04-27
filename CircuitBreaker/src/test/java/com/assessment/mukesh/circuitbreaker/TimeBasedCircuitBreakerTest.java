@@ -11,53 +11,46 @@ public class TimeBasedCircuitBreakerTest {
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.TIME, 3, 2000);
+        circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.TIME, 3, 2000,3000);
     }
 
     @Test
-    public void testAllowRequestInitiallyClosed() {
+    void testCircuitBreakerInitiallyClosed() {
         assertTrue(circuitBreaker.allowRequest());
     }
 
     @Test
-    public void testCircuitOpensAfterFailures() {
-        // Arrange
+    void testCircuitBreakerOpensAfterFailuresWithinTimeWindow() {
         circuitBreaker.recordFailure();
         circuitBreaker.recordFailure();
-        // Act and Assert
-        assertTrue(circuitBreaker.allowRequest());
-
         circuitBreaker.recordFailure();
 
-        assertFalse(circuitBreaker.allowRequest());
+        assertFalse(circuitBreaker.allowRequest(), "Circuit should be open after 3 failures");
     }
 
     @Test
-    public void testCircuitHalfOpenAfterRetryTime() throws InterruptedException {
+    void testCircuitBreakerDoesNotOpenIfFailuresSpreadOutsideTimeWindow() throws InterruptedException {
         circuitBreaker.recordFailure();
+        Thread.sleep(2500); // Wait more than timeWindow (2000ms)
         circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure(); // Opens the circuit
+        Thread.sleep(2500);
+        circuitBreaker.recordFailure();
 
-        assertFalse(circuitBreaker.allowRequest());
-
-        Thread.sleep(2100); // Sleep longer than retryTimePeriod
-
-        assertTrue(circuitBreaker.allowRequest()) ;
+        assertTrue(circuitBreaker.allowRequest(), "Circuit should stay closed as failures are outside time window");
     }
 
     @Test
-    public void testCircuitClosesAfterSuccess() throws InterruptedException {
+    void testCircuitBreakerClosesAfterSuccess() {
         circuitBreaker.recordFailure();
         circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure(); // Open
+        circuitBreaker.recordFailure();
 
-        Thread.sleep(2100); // wait for half-open
+        assertFalse(circuitBreaker.allowRequest(), "Circuit should be open after 3 failures");
 
-        assertTrue(circuitBreaker.allowRequest());
-
+        // Now record a success
         circuitBreaker.recordSuccess();
 
-        assertTrue(circuitBreaker.allowRequest());
+        assertTrue(circuitBreaker.allowRequest(), "Circuit should be closed after a successful call");
     }
 }
 

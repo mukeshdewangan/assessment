@@ -6,7 +6,10 @@ public class CircuitBreakerFactory {
             case COUNT:
                 return new CountBasedCircuitBreaker(failureThreshold, retryDuration);
             case TIME:
-                return new TimeBasedCircuitBreaker();
+                if (timeWindow.length!= 1) {
+                    throw new IllegalArgumentException("Invalid time window");
+                }
+                return new TimeBasedCircuitBreaker(failureThreshold,timeWindow[0]);
             default:
                 throw new IllegalArgumentException("Invalid circuit breaker type");
         }

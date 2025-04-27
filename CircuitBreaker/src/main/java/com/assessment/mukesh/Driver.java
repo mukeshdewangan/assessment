@@ -6,7 +6,8 @@ import java.util.Map;
 
 public class Driver {
     public static void main(String[] args) {
-        CircuitBreaker circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 5, 3000);
+        CircuitBreaker circuitBreaker =
+                CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 5, 3000);
 
         // Simulate some failures
         for (int i = 0; i < 3; i++) {

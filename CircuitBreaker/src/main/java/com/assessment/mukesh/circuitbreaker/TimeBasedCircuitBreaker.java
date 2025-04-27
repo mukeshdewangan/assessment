@@ -13,7 +13,7 @@ public class TimeBasedCircuitBreaker extends CircuitBreaker {
     }
 
     @Override
-    public boolean allowRequest() {
+    public synchronized boolean allowRequest() {
         if (state == State.OPEN) {
             return false; // Block requests when OPEN
         }
@@ -21,24 +21,24 @@ public class TimeBasedCircuitBreaker extends CircuitBreaker {
     }
 
     @Override
-    public void recordFailure() {
+    public synchronized void recordFailure() {
         long now = System.currentTimeMillis();
         failureTimestamps.add(now);
 
-        // Remove old failures outside time window
+        // Sliding window approach to remove old failures outside time window
         while (!failureTimestamps.isEmpty() && now - failureTimestamps.peek() > timeWindow) {
             failureTimestamps.poll();
         }
 
         if (failureTimestamps.size() >= failureThreshold) {
-            state = State.OPEN;
+            changeState(State.OPEN);
         }
     }
 
     @Override
-    public void recordSuccess() {
+    public synchronized void recordSuccess() {
         failureTimestamps.clear();
-        state = State.CLOSED;
+        changeState(State.CLOSED);
     }
 
     @Override

@@ -8,10 +8,11 @@ public class CountBasedCircuitBreaker extends CircuitBreaker{
         this.retryTimePeriod = retryDuration;
     }
 
-    public boolean allowRequest() {
+    @Override
+    public synchronized boolean allowRequest() {
         if (state == State.OPEN) {
             if ((System.currentTimeMillis() - lastFailureTime) > retryTimePeriod) {
-                state = State.HALF_OPEN;
+                changeState(State.HALF_OPEN);
                 return true; // Allow a test request
             } else {
                 return false;
@@ -22,25 +23,29 @@ public class CountBasedCircuitBreaker extends CircuitBreaker{
             return true;
         }
     }
-    public void recordSuccess() {
+
+    @Override
+    public synchronized void recordSuccess() {
         failureCount = 0;
-        state = State.CLOSED;
+        changeState(State.CLOSED);
     }
 
-    public void recordFailure() {
+    @Override
+    public synchronized void recordFailure() {
         if (state == State.HALF_OPEN) {
-            state = State.OPEN;
+            changeState( State.OPEN);
             lastFailureTime = System.currentTimeMillis();
             failureCount = failureThreshold;
         } else {
             failureCount++;
             if (failureCount >= failureThreshold) {
-                state = State.OPEN;
+                changeState(State.OPEN);
                 lastFailureTime = System.currentTimeMillis();
             }
         }
     }
 
+    @Override
     public String getType(){
         return CircuitBreakerType.COUNT.toString();
     }

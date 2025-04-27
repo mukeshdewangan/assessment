@@ -11,7 +11,11 @@ public class CountBasedCircuitBreakerTest {
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 3, 2000);
+        circuitBreaker = CircuitBreakerFactory
+                .createCircuitBreaker(CircuitBreakerType.COUNT, 3, 2000);
+        circuitBreaker.setEventListener((oldState, newState) -> {
+            System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
+        });
     }
 
     @Test

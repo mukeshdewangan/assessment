@@ -9,6 +9,9 @@ public class Driver {
         CircuitBreaker circuitBreaker =
                 CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 5, 3000);
 
+        circuitBreaker.setEventListener((oldState, newState) -> {
+            System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
+        });
         // Simulate some failures
         for (int i = 0; i < 3; i++) {
             if (circuitBreaker.allowRequest()) {

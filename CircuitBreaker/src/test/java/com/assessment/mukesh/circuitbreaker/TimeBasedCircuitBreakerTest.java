@@ -11,7 +11,11 @@ public class TimeBasedCircuitBreakerTest {
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.TIME, 3, 2000,3000);
+        circuitBreaker = CircuitBreakerFactory
+                .createCircuitBreaker(CircuitBreakerType.TIME, 3, 2000,3000);
+        circuitBreaker.setEventListener((oldState, newState) -> {
+            System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
+        });
     }
 
     @Test

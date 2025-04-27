@@ -1,9 +1,9 @@
 package com.assessment.mukesh.circuitbreaker;
 
 public class CustomCircuitBreaker {
-    private int failureThreshold;    // Number of allowed failures
-    private int failureCount = 0;     // Current number of failures
-    private long retryTimePeriod;     // Time to wait before retrying (ms)
+    private int failureThreshold;
+    private int failureCount = 0;
+    private long retryTimePeriod;
     private long lastFailureTime = 0;
     private State state = State.CLOSED;
 
@@ -33,10 +33,16 @@ public class CustomCircuitBreaker {
     }
 
     public void recordFailure() {
-        failureCount++;
-        if (failureCount >= failureThreshold) {
+        if (state == State.HALF_OPEN) {
             state = State.OPEN;
             lastFailureTime = System.currentTimeMillis();
+            failureCount = failureThreshold;
+        } else {
+            failureCount++;
+            if (failureCount >= failureThreshold) {
+                state = State.OPEN;
+                lastFailureTime = System.currentTimeMillis();
+            }
         }
     }
 }

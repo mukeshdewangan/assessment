@@ -2,8 +2,6 @@ package com.assessment.mukesh;
 
 import com.assessment.mukesh.circuitbreaker.*;
 
-import java.util.Map;
-
 public class Driver {
     public static void main(String[] args) {
         countBasedCircuitBreaker();
@@ -12,13 +10,14 @@ public class Driver {
     private static void countBasedCircuitBreaker() {
         // Driver method to test the Count Based circuit breaker
         CircuitBreaker circuitBreaker =
-                CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 3, 10000);
+                CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 3, 3000);
 
         circuitBreaker.setEventListener((oldState, newState) -> {
             System.out.println("COUNT - Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
         });
+        CircuitBreakerMetric metric;
         // Simulate some failures
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 6; i++) {
             if (circuitBreaker.allowRequest()) {
                 try {
                     throw new RuntimeException("fail");
@@ -27,16 +26,28 @@ public class Driver {
                 }
             }
         }
-        circuitBreaker.allowRequest();
-        CircuitBreakerMetric metric = circuitBreaker.getMetric();
-        MetricLogger.logCircuitBreakerMetrics(metric);
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        circuitBreaker.allowRequest();
+
+
+        metric = circuitBreaker.getMetric();
+        MetricLogger.logCircuitBreakerMetrics(metric);
+
+        if (circuitBreaker.allowRequest()) {
+            try {
+                throw new RuntimeException("fail");
+            } catch (Exception e) {
+                circuitBreaker.recordFailure();
+            }
+        }
+
+        // Simulate a successful call
+        circuitBreaker.recordSuccess();
+
         metric = circuitBreaker.getMetric();
         MetricLogger.logCircuitBreakerMetrics(metric);
     }

@@ -23,7 +23,9 @@ public abstract class CircuitBreaker {
         return failureThreshold;
     }
     public long getRetryTimePeriod() { return retryTimePeriod;}
-    public void setEventListener(CircuitBreakerEventListener listener){ this.eventListener = listener;}
+    public void setEventListener(CircuitBreakerEventListener listener){
+        this.eventListener = listener;
+    }
     protected void changeState(State newState) {
         State oldState = this.state;
         this.state = newState;

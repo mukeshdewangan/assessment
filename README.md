@@ -18,7 +18,7 @@ The major features of the this Circuit Breaker -
 - The parameters for these CircuitBreakers can be fine-tuned such as the `failureThreshold`, `duration of retry`, `timeWindow` for TimeBasedCircuitBreaker. 
 - To call the rpc and fallback method we are using the Supplier<T> functional interface.
 - Circuit breaker support emitting metrics.
-- Logging features enabled using slf4j - Facade pattern
+- Logging features enabled using slf4j and logback.
 
 Added test cases 
 `CircuitBreakerBaseTest` is the BaseTest class which is extended by `CountBasedCircuitBreakerTest` and `TimeBasedCircuitBreakerTest`.

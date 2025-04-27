@@ -7,7 +7,7 @@ public class MetricLogger {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final LogHelper log = LogHelper.getLogger(MetricLogger.class);
 
-    public void logCircuitBreakerMetrics(CircuitBreakerMetric metrics) {
+    public static void logCircuitBreakerMetrics(CircuitBreakerMetric metrics) {
         try {
             String serializedMetrics = objectMapper.writeValueAsString(metrics);
             log.info(serializedMetrics);

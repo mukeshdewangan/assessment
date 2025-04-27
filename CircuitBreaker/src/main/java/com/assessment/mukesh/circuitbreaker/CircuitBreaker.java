@@ -11,6 +11,7 @@ public abstract class CircuitBreaker {
     public abstract void recordFailure();
     public abstract void recordSuccess();
     public abstract String getType();
+    protected CircuitBreakerMetric metric;
 
     public String getState() {
         return state.toString();
@@ -30,5 +31,15 @@ public abstract class CircuitBreaker {
         if (eventListener != null) {
             eventListener.onStateChange(oldState, newState);
         }
+    }
+
+    public CircuitBreakerMetric getMetric(){
+        // Fetch and print metrics
+        CircuitBreakerMetric metric = new CircuitBreakerMetric.Builder().
+                state(this.getState()).
+                type(this.getType()).
+                totalFailureCount(this.getFailureCount()).
+                build();
+        return metric;
     }
 }

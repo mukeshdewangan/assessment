@@ -6,11 +6,13 @@ import java.util.Map;
 
 public class Driver {
     public static void main(String[] args) {
+
+        // Driver method to test the Count Based circuit breaker
         CircuitBreaker circuitBreaker =
                 CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 5, 3000);
 
         circuitBreaker.setEventListener((oldState, newState) -> {
-            System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
+            System.out.println("Count - Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
         });
         // Simulate some failures
         for (int i = 0; i < 3; i++) {
@@ -23,14 +25,8 @@ public class Driver {
             }
         }
 
-        // Fetch and print metrics
-        CircuitBreakerMetric metric = new CircuitBreakerMetric.Builder().
-                state(circuitBreaker.getState()).
-                type(circuitBreaker.getType()).
-                totalFailureCount(circuitBreaker.getFailureCount()).
-                build();
-
-        new MetricLogger().logCircuitBreakerMetrics(metric);
+        CircuitBreakerMetric metric = circuitBreaker.getMetric();
+        MetricLogger.logCircuitBreakerMetrics(metric);
 
     }
 }

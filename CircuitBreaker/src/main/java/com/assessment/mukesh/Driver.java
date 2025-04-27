@@ -1,7 +1,7 @@
 package com.assessment.mukesh;
 
 import com.assessment.mukesh.circuitbreaker.CircuitBreakerMetric;
-import com.assessment.mukesh.circuitbreaker.CustomCircuitBreaker;
+import com.assessment.mukesh.circuitbreaker.CountBasedCircuitBreaker;
 import com.assessment.mukesh.circuitbreaker.MetricLogger;
 
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 public class Driver {
     public static void main(String[] args) {
 
-        CustomCircuitBreaker circuitBreaker = new CustomCircuitBreaker(5, 3);
+        CountBasedCircuitBreaker circuitBreaker = new CountBasedCircuitBreaker(5, 3000);
 
         // Simulate some failures
         for (int i = 0; i < 3; i++) {

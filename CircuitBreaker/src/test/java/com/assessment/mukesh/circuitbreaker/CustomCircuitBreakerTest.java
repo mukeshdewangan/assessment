@@ -7,12 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CustomCircuitBreakerTest {
-
     private CustomCircuitBreaker circuitBreaker;
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = new CustomCircuitBreaker(3, 2000);;
+        circuitBreaker = new CustomCircuitBreaker(3, 2000);
     }
 
     @Test

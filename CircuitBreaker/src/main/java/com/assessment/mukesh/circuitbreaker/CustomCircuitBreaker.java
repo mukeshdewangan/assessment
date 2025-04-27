@@ -25,4 +25,16 @@ public class CustomCircuitBreaker {
         // CLOSED or HALF_OPEN
         return true;
     }
+    public void recordSuccess() {
+        failureCount = 0;
+        state = State.CLOSED;
+    }
+
+    public void recordFailure() {
+        failureCount++;
+        if (failureCount >= failureThreshold) {
+            state = State.OPEN;
+            lastFailureTime = System.currentTimeMillis();
+        }
+    }
 }

@@ -11,7 +11,7 @@ The major features of the this Circuit Breaker -
 - Two variant of Circuit breaker can be created - 
    1. CountBasedCircuitBreaker
    2. TimeBasedCircuitBreaker
-- CircuitBreaker is Base class. CountBasedCircuitBreaker and TimeBasedCircuitBreaker are child classes.
+- `CircuitBreaker` is Base class where common variables and common method are placed. `CountBasedCircuitBreaker` and `TimeBasedCircuitBreaker` are child classes and contains specific implementation according to strategy.
 - These variants can be created via Factory method - `CircuitBreakerFactory.createCircuitBreaker()`.
 - For understanding the sample usage, you can refer to `Driver.java`
 - To support the scaling and concurrency control, the required methods like `recordSuccess`, `recordFailure` are synchronized .  

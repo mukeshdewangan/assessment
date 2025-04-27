@@ -6,12 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CustomCircuitBreakerTest {
-    private CustomCircuitBreaker circuitBreaker;
+public class CountBasedCircuitBreakerTest {
+    private CircuitBreaker circuitBreaker;
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = new CustomCircuitBreaker(3, 2000);
+        circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 3, 2000);
     }
 
     @Test

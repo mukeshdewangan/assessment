@@ -1,7 +1,6 @@
 package com.assessment.mukesh.circuitbreaker;
 
 public class CircuitBreakerMetric {
-
     private final String state;
     private final int totalFailureCount;
     private final int failuresInTimeWindow;

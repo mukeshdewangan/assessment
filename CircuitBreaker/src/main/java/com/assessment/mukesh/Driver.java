@@ -1,15 +1,12 @@
 package com.assessment.mukesh;
 
-import com.assessment.mukesh.circuitbreaker.CircuitBreakerMetric;
-import com.assessment.mukesh.circuitbreaker.CountBasedCircuitBreaker;
-import com.assessment.mukesh.circuitbreaker.MetricLogger;
+import com.assessment.mukesh.circuitbreaker.*;
 
 import java.util.Map;
 
 public class Driver {
     public static void main(String[] args) {
-
-        CountBasedCircuitBreaker circuitBreaker = new CountBasedCircuitBreaker(5, 3000);
+        CircuitBreaker circuitBreaker = CircuitBreakerFactory.createCircuitBreaker(CircuitBreakerType.COUNT, 5, 3000);
 
         // Simulate some failures
         for (int i = 0; i < 3; i++) {
@@ -25,8 +22,8 @@ public class Driver {
         // Fetch and print metrics
         CircuitBreakerMetric metric = new CircuitBreakerMetric.Builder().
                 state(circuitBreaker.getState()).
-                totalFailureCount(circuitBreaker.getTotalFailureCount()).
-                failuresInTimeWindow(circuitBreaker.getFailuresInTimeWindow()).
+                type(circuitBreaker.getType()).
+                totalFailureCount(circuitBreaker.getFailureCount()).
                 build();
 
         new MetricLogger().logCircuitBreakerMetrics(metric);

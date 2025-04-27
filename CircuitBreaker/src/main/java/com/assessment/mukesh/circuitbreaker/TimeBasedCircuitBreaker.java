@@ -1,6 +1,6 @@
 package com.assessment.mukesh.circuitbreaker;
 
-public class TimeBasedCircuitBreaker implements CircuitBreaker{
+public class TimeBasedCircuitBreaker extends CircuitBreaker{
     @Override
     public boolean allowRequest() {
         return false;
@@ -14,5 +14,8 @@ public class TimeBasedCircuitBreaker implements CircuitBreaker{
     @Override
     public void recordSuccess() {
 
+    }
+    public String getType(){
+        return CircuitBreakerType.TIME.toString();
     }
 }

@@ -1,11 +1,7 @@
 package com.assessment.mukesh.circuitbreaker;
 
-public class CountBasedCircuitBreaker implements CircuitBreaker{
-    private int failureThreshold;
-    private int failureCount = 0;
-    private long retryTimePeriod;
+public class CountBasedCircuitBreaker extends CircuitBreaker{
     private long lastFailureTime = 0;
-    private State state = State.CLOSED;
 
     public CountBasedCircuitBreaker(int failureThreshold, long retryDuration){
         this.failureThreshold = failureThreshold;
@@ -45,21 +41,7 @@ public class CountBasedCircuitBreaker implements CircuitBreaker{
         }
     }
 
-    public int getFailureCount() {
-        return failureCount;
-    }
-    public int getFailureThreshold() {
-        return failureThreshold;
-    }
-
-    public String getState() {
-        return state.toString();
-    }
-
-    public int getTotalFailureCount() {
-        return failureCount;
-    }
-    public int getFailuresInTimeWindow() {
-        return failureCount;
+    public String getType(){
+        return CircuitBreakerType.COUNT.toString();
     }
 }

@@ -1,6 +1,6 @@
 package com.assessment.mukesh.circuitbreaker;
 
-public class CustomCircuitBreaker {
+public class CustomCircuitBreaker  implements CircuitBreaker{
     private int failureThreshold;
     private int failureCount = 0;
     private long retryTimePeriod;

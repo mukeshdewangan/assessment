@@ -7,13 +7,12 @@ public class CustomCircuitBreaker {
     private long lastFailureTime = 0;
     private State state = State.CLOSED;
 
-    public CustomCircuitBreaker(int failureThreshold, long retryDuration ){
+    public CustomCircuitBreaker(int failureThreshold, long retryDuration){
         this.failureThreshold = failureThreshold;
         this.retryTimePeriod = retryDuration;
     }
 
     public boolean allowRequest() {
-        if (state == State.CLOSED ) return true;
         if (state == State.OPEN) {
             if ((System.currentTimeMillis() - lastFailureTime) > retryTimePeriod) {
                 state = State.HALF_OPEN;
@@ -22,7 +21,7 @@ public class CustomCircuitBreaker {
                 return false;
             }
         }
-        // HALF  OPEN
+        // HALF  OPEN or CLOSED
         else {
             return true;
         }
@@ -44,5 +43,23 @@ public class CustomCircuitBreaker {
                 lastFailureTime = System.currentTimeMillis();
             }
         }
+    }
+
+    public int getFailureCount() {
+        return failureCount;
+    }
+    public int getFailureThreshold() {
+        return failureThreshold;
+    }
+
+    public String getState() {
+        return state.toString();
+    }
+
+    public int getTotalFailureCount() {
+        return failureCount;
+    }
+    public int getFailuresInTimeWindow() {
+        return failureCount;
     }
 }

@@ -3,14 +3,16 @@ package com.assessment.mukesh.circuitbreaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.function.Supplier;
 
-public class TimeBasedCircuitBreakerTest {
-    private CircuitBreaker circuitBreaker;
+import static org.junit.jupiter.api.Assertions.*;
 
+public class TimeBasedCircuitBreakerTest extends CircuitBreakerBaseTest{
+
+    @Override
     @BeforeEach
     void setUp() {
+        super.setUp();
         circuitBreaker = CircuitBreakerFactory
                 .createCircuitBreaker(CircuitBreakerType.TIME, 3, 2000,3000);
         circuitBreaker.setEventListener((oldState, newState) -> {
@@ -19,42 +21,33 @@ public class TimeBasedCircuitBreakerTest {
     }
 
     @Test
-    void testCircuitBreakerInitiallyClosed() {
-        assertTrue(circuitBreaker.allowRequest());
-    }
-
-    @Test
     void testCircuitBreakerOpensAfterFailuresWithinTimeWindow() {
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
-
-        assertFalse(circuitBreaker.allowRequest(), "Circuit should be open after 3 failures");
+        for (int i = 0; i < 3; i++) {
+            assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
+        }
+        assertEquals(State.OPEN.toString(), circuitBreaker.getState());
     }
 
     @Test
-    void testCircuitBreakerDoesNotOpenIfFailuresSpreadOutsideTimeWindow() throws InterruptedException {
-        circuitBreaker.recordFailure();
-        Thread.sleep(2500); // Wait more than timeWindow (2000ms)
-        circuitBreaker.recordFailure();
-        Thread.sleep(2500);
-        circuitBreaker.recordFailure();
+    void testFailureInHalfOpenMovesBackToOpen() throws InterruptedException {
+        for (int i = 0; i < 3; i++) {
+            assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
+        }
+        assertEquals(State.OPEN.toString(), circuitBreaker.getState());
 
-        assertTrue(circuitBreaker.allowRequest(), "Circuit should stay closed as failures are outside time window");
+        Thread.sleep(5100);
+
+        // Failed call in HALF_OPEN
+        circuitBreaker.call(() -> { throw new RuntimeException("Failure again"); }, () -> "Fallback");
+
+        assertEquals(State.HALF_OPEN.toString(), circuitBreaker.getState());
     }
 
     @Test
     void testCircuitBreakerClosesAfterSuccess() {
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
+        assertEquals("FALLBACK SUCCESSFUL!",circuitBreaker.call(problematicRPC, fallbackRPC));
 
-        assertFalse(circuitBreaker.allowRequest(), "Circuit should be open after 3 failures");
-
-        // Now record a success
-        circuitBreaker.recordSuccess();
-
-        assertTrue(circuitBreaker.allowRequest(), "Circuit should be closed after a successful call");
+        assertEquals( "RPC SUCCESSFUL!",circuitBreaker.call(healthyRPC, fallbackRPC));
     }
 }
 

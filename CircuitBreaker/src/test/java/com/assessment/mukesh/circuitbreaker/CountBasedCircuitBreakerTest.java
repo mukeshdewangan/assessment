@@ -3,65 +3,51 @@ package com.assessment.mukesh.circuitbreaker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.function.Supplier;
 
-public class CountBasedCircuitBreakerTest {
-    private CircuitBreaker circuitBreaker;
+import static org.junit.jupiter.api.Assertions.*;
 
+public class CountBasedCircuitBreakerTest extends CircuitBreakerBaseTest {
+
+    @Override
     @BeforeEach
     void setUp() {
+        super.setUp();
         circuitBreaker = CircuitBreakerFactory
                 .createCircuitBreaker(CircuitBreakerType.COUNT, 3, 2000);
         circuitBreaker.setEventListener((oldState, newState) -> {
-            System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
+            System.out.println("Count - Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
         });
     }
 
     @Test
-    public void testAllowRequestInitiallyClosed() {
-        assertTrue(circuitBreaker.allowRequest());
-    }
-
-    @Test
     public void testCircuitOpensAfterFailures() {
-        // Arrange
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
         // Act and Assert
-        assertTrue(circuitBreaker.allowRequest());
-
-        circuitBreaker.recordFailure();
-
-        assertFalse(circuitBreaker.allowRequest());
+        for (int i = 0; i < 3; i++) {
+            assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
+        }
+        try {
+            Thread.sleep(2000);
+            assertEquals( "RPC SUCCESSFUL!", circuitBreaker.call(healthyRPC,fallbackRPC));
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void testCircuitHalfOpenAfterRetryTime() throws InterruptedException {
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure(); // Opens the circuit
+        assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
+        assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
+        assertEquals("FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC, fallbackRPC));
 
-        assertFalse(circuitBreaker.allowRequest());
-
+        assertEquals(State.OPEN.toString(), circuitBreaker.getState());
         Thread.sleep(2100); // Sleep longer than retryTimePeriod
 
-        assertTrue(circuitBreaker.allowRequest()) ;
-    }
-
-    @Test
-    public void testCircuitClosesAfterSuccess() throws InterruptedException {
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure(); // Open
-
-        Thread.sleep(2100); // wait for half-open
-
-        assertTrue(circuitBreaker.allowRequest());
-
-        circuitBreaker.recordSuccess();
-
-        assertTrue(circuitBreaker.allowRequest());
+        assertEquals("RPC SUCCESSFUL!" ,circuitBreaker.call(healthyRPC, fallbackRPC));
+        assertEquals(State.HALF_OPEN.toString(), circuitBreaker.getState());
+        assertEquals("RPC SUCCESSFUL!" ,circuitBreaker.call(healthyRPC, fallbackRPC));
+        assertEquals(State.CLOSED.toString(), circuitBreaker.getState());
     }
 }
 

@@ -1,9 +1,9 @@
 package com.assessment.mukesh.circuitbreaker;
 
 public abstract class CircuitBreaker {
-    protected int failureThreshold;
+    protected int failureThreshold = 3;
     protected int failureCount = 0;
-    protected long retryTimePeriod;
+    protected long retryTimePeriod = 3000;
     protected State state = State.CLOSED;
     public abstract boolean allowRequest();
     public abstract void recordFailure();

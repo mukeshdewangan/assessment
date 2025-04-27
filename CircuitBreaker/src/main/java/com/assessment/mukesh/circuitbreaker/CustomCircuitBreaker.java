@@ -13,17 +13,19 @@ public class CustomCircuitBreaker {
     }
 
     public boolean allowRequest() {
+        if (state == State.CLOSED ) return true;
         if (state == State.OPEN) {
             if ((System.currentTimeMillis() - lastFailureTime) > retryTimePeriod) {
                 state = State.HALF_OPEN;
                 return true; // Allow a test request
             } else {
-                // Block the request
                 return false;
             }
         }
-        // CLOSED or HALF_OPEN
-        return true;
+        // HALF  OPEN
+        else {
+            return true;
+        }
     }
     public void recordSuccess() {
         failureCount = 0;

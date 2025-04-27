@@ -19,6 +19,11 @@ public class CountBasedCircuitBreakerTest extends CircuitBreakerBaseTest {
             System.out.println("Count - Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
         });
     }
+    @Test
+    public void testAllowRequestInitiallyClosed() {
+        assertEquals( "RPC SUCCESSFUL!", circuitBreaker.call(healthyRPC,fallbackRPC));
+        assertEquals( "FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC,fallbackRPC));
+    }
 
     @Test
     public void testCircuitOpensAfterFailures() {

@@ -19,6 +19,11 @@ public class TimeBasedCircuitBreakerTest extends CircuitBreakerBaseTest{
             System.out.println("Change from " + oldState + " to " + newState + " at " + System.currentTimeMillis());
         });
     }
+    @Test
+    public void testAllowRequestInitiallyClosed() {
+        assertEquals( "RPC SUCCESSFUL!", circuitBreaker.call(healthyRPC,fallbackRPC));
+        assertEquals( "FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC,fallbackRPC));
+    }
 
     @Test
     void testCircuitBreakerOpensAfterFailuresWithinTimeWindow() {

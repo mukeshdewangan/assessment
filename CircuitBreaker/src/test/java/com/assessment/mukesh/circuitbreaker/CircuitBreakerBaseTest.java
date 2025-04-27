@@ -24,10 +24,4 @@ public class CircuitBreakerBaseTest{
             return "RPC SUCCESSFUL!";
         };
     }
-
-    @Test
-    public void testAllowRequestInitiallyClosed() {
-        assertEquals( "RPC SUCCESSFUL!", circuitBreaker.call(healthyRPC,fallbackRPC));
-        assertEquals( "FALLBACK SUCCESSFUL!", circuitBreaker.call(problematicRPC,fallbackRPC));
-    }
 }

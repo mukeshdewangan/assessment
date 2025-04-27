@@ -33,7 +33,7 @@ public class CountBasedCircuitBreaker extends CircuitBreaker{
     @Override
     public synchronized void recordFailure() {
         if (state == State.HALF_OPEN) {
-            changeState( State.OPEN);
+            changeState(State.OPEN);
             lastFailureTime = System.currentTimeMillis();
             failureCount = failureThreshold;
         } else {
